@@ -152,6 +152,37 @@ class HubsBot {
     window.APP.hubChannel.channel.on('message', callback)
   }
 
+  async playFile(filePath) {
+    let retryCount = 5;
+    let backoff = 1000;
+		try {
+			// Interact with the page so that audio can play.
+			await this.page.mouse.click(100, 100);
+      // check if the file is mp3 or json
+      let selector = null;
+      if (filePath.indexOf(".mp3") == filePath.length - 4) {
+        selector = "#bot-audio-input";
+      } else if (filePath.indexOf(".json") == filePath.length - 5) {
+        selector = "#bot-data-input";
+      } else {
+        return;
+      }
+      const inputField = await this.page.waitForSelector(selector);
+      inputField.uploadFile(filePath);
+      console.log("file to play : %s", filePath);
+		} catch (e) {
+      console.log("Interaction error", e.message)
+			if (retryCount-- < 0) {
+				// If retries failed, throw and restart navigation.
+				throw new Error("Retries failed");
+			}
+			console.log("Retrying...", e.message);
+			backoff *= 2;
+			// Retry interaction to start audio playback
+			setTimeout(playFile.speak(filePath), backoff);
+		}
+	}
+
   /**
    * Creates an {@link InBrowserBotBuilder} to allow building a bot for use in the
    * developer console.
