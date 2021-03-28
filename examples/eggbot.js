@@ -1,8 +1,10 @@
 const {HubsBot} = require('../index.js')
 
 async function run(roomUrl) {
-  eggBot = new HubsBot()
-  await eggBot.enterRoom(roomUrl, {name: "Egg Bot"})
+  eggBot = new HubsBot({
+    userDataDir: "./examples/assets/chrome-profile/User Data/"
+  })
+  await eggBot.enterRoom(roomUrl, {name: "Egg Bot", spawnPoint: "sp3"})
   setInterval(() => {
     eggBot.say("Here's an egg for you!")
     eggBot.spawnObject({

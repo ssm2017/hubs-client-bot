@@ -2,6 +2,7 @@ const {URL} = require('url')
 const {BrowserLauncher} = require('./browser-launcher.js')
 const {InBrowserBot} = require('./in-browser-bot.js')
 const {InBrowserBotBuilder} = require('./in-browser-bot-builder.js')
+const querystring = require("query-string");
 
 class PageUtils {
   constructor({page, autoLog = true}) {
@@ -34,16 +35,19 @@ class El {
    bot.goTo(0, 1, 0) // goTo is a InBrowserBot method, but can be called directly on the HubsBot
  * @param {Object} opt See below
  * @param {boolean} opt.headless Set this to false to have puppeteer spawn Chromium window.
+ * @param {string} opt.userDataDir Path to the Chromium user profile.
  * @param {string} opt.name Name for the bot to appear as ({@link setName})
  * @see InBrowserBot
 */
 class HubsBot {
   constructor({
     headless = true,
+    userDataDir = "",
     name = "HubsBot",
-    autoLog = true} = {}
-  ) {
+    autoLog = true
+  } = {} ) {
     this.headless = headless
+    this.userDataDir = userDataDir
     this.browserLaunched = this.launchBrowser()
     this.name = name
     this.autoLog = autoLog
@@ -99,7 +103,7 @@ class HubsBot {
    *  directly in most cases. It will be done automatically when needed.
   */
   async launchBrowser () {
-    this.browser = await BrowserLauncher.browser({headless: this.headless});
+    this.browser = await BrowserLauncher.browser({headless: this.headless, userDataDir: this.userDataDir});
     this.page = await this.browser.newPage();
 
     if (this.autoLog)
@@ -107,22 +111,18 @@ class HubsBot {
       this.page.on('console', consoleObj => console.log(">> ", consoleObj.text()));
     }
 
-    const context = this.browser.defaultBrowserContext();
-    context.overridePermissions("https://hubs.mozilla.com", ['microphone', 'camera'])
-    context.overridePermissions("https://hubs.link", ['microphone', 'camera'])
   }
 
   /** Enters the room specified, enabling the first microphone and speaker found
    * @param {string} roomUrl The url of the room to join
    * @param {Object} opts
    * @param {string} opts.name Name to set as the bot name when joining the room
+   * @param {string} opts.spawnPoint Name of the spawn point
   */
-  async enterRoom(roomUrl, {name} = {}) {
+  async enterRoom(roomUrl, {name, spawnPoint=null} = {}) {
     await this.browserLaunched
 
     let parsedUrl = new URL(roomUrl)
-    const context = this.browser.defaultBrowserContext();
-    context.overridePermissions(parsedUrl.origin, ['microphone', 'camera'])
 
     if (name)
     {
@@ -133,33 +133,17 @@ class HubsBot {
       name = this.name
     }
 
-    await this.page.goto(roomUrl, {waitUntil: 'domcontentloaded'})
-    await this.page.waitFor("button")
-
-    if (this.headless) {
-      // Disable rendering for headless, otherwise chromium uses a LOT of CPU
-      await this.page.evaluate(() => { AFRAME.scenes[0].renderer.render = function() {} })
+    var params = {
+      bot: true,
+      allow_multi: true
+    };
+		let url = `${roomUrl}?${querystring.stringify(params)}`;
+    if (spawnPoint) {
+      url += `#${spawnPoint}`;
     }
+    console.log(url);
 
-    let pu = new PageUtils(this)
-    await pu.clickSelectorClassRegex("button", /entry__action/)
-    await this.page.waitFor("input")
-    await pu.clickSelectorClassRegex("input", /profile__form-submit/)
-    await this.page.waitFor("button:nth-child(2)")
-    await pu.clickSelectorClassRegex("button:nth-child(2)", /entry__entry-button/)
-
-    try
-    {
-      await this.page.waitFor(2000)
-      await pu.clickSelectorClassRegex("button", /mic-grant-panel__next/)
-    }
-    catch (e)
-    {
-      // Permission already granted
-    }
-
-    await this.page.waitFor(2000)
-    await pu.clickSelectorClassRegex("button", /enter/)
+    await this.page.goto(url, {waitUntil: 'domcontentloaded'})
 
     this.setName(name)
   }
