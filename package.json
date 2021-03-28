@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/zach-capalbo/hubs-client-bot#readme",
   "dependencies": {
-    "puppeteer": "7.1.0",
+    "puppeteer": "1.20.0",
     "query-string": "^6.14.1"
   },
   "devDependencies": {
