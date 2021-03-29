@@ -54,6 +54,7 @@ class InBrowserBot {
       autoDropTimeout,
       fitToBox = true,
       pinned = false,
+      projection = null
     } = opts
     let el = document.createElement("a-entity")
 
@@ -64,7 +65,9 @@ class InBrowserBot {
     el.setAttribute('rotation', rotation)
     el.setAttribute('media-loader', {src: url, resolve: true, fitToBox})
     el.setAttribute('networked', {template: '#interactable-media'})
-
+    if (projection) {
+      el.setAttribute('media-loader', {mediaOptions: {projection: projection}});
+    }
     document.querySelector('a-scene').append(el)
 
     await loaded
@@ -134,7 +137,7 @@ class InBrowserBot {
 
     if (pinned) {
       await new Promise((r,e) => window.setTimeout(r, 2000))
-      netEl.setAttribute('pinnable', {pinned})
+      netEl.setAttribute('pinnable', {pinned: pinned})
     }
 
     return netEl.id
@@ -252,6 +255,25 @@ class InBrowserBot {
     if (head) {
       document.querySelector('#avatar-pov-node').setAttribute('rotation', head.rotation)
       document.querySelector('#avatar-pov-node').setAttribute('position', head.position)
+    }
+  }
+
+  async deleteAllObjects() {
+    try {
+      let images = document.querySelectorAll("[media-image][networked]");
+      let models = document.querySelectorAll("[gltf-model-plus][networked]");
+      let all = [];
+      all.push.apply(all, images);
+      all.push.apply(all, models);
+      for (item of all) {
+        let netEl = await NAF.utils.getNetworkedEntity(item);
+        if (!NAF.utils.isMine(netEl)) await NAF.utils.takeOwnership(netEl)
+        netEl.setAttribute("pinnable", "pinned", false);
+        await new Promise((r,e) => window.setTimeout(r, 1000))
+        netEl.remove();
+      }
+    } catch (e) {
+      console.error("Error deleting object : ", e);
     }
   }
 }

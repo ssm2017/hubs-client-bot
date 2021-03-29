@@ -119,7 +119,7 @@ class HubsBot {
    * @param {string} opts.name Name to set as the bot name when joining the room
    * @param {string} opts.spawnPoint Name of the spawn point
   */
-  async enterRoom(roomUrl, {name, spawnPoint=null} = {}) {
+  async enterRoom(roomUrl, {name, spawnPoint=null, audioVolume=null } = {}) {
     await this.browserLaunched
 
     let parsedUrl = new URL(roomUrl)
@@ -137,6 +137,10 @@ class HubsBot {
       bot: true,
       allow_multi: true
     };
+    if (audioVolume) {
+      params.audio_volume = audioVolume;
+    }
+ 
 		let url = `${roomUrl}?${querystring.stringify(params)}`;
     if (spawnPoint) {
       url += `#${spawnPoint}`;
@@ -182,6 +186,13 @@ class HubsBot {
 			setTimeout(playFile.speak(filePath), backoff);
 		}
 	}
+
+  async jumpTo(spawnPoint) {
+    let source_url = this.page.url();
+    let url_as_array = source_url.split("#");
+    let destination_url = url_as_array[0] + "#" + spawnPoint;
+		await this.page.goto(destination_url);
+  }
 
   /**
    * Creates an {@link InBrowserBotBuilder} to allow building a bot for use in the
