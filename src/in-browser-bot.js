@@ -67,6 +67,7 @@ class InBrowserBot {
     el.setAttribute('networked', {template: '#interactable-media'})
     if (projection) {
       el.setAttribute('media-loader', {mediaOptions: {projection: projection}});
+      dynamic = false;
     }
     document.querySelector('a-scene').append(el)
 
@@ -132,7 +133,6 @@ class InBrowserBot {
           lastPosition.copy(el.object3D.position)
         }, 100)
       }
-
     }
 
     if (pinned) {
@@ -260,15 +260,20 @@ class InBrowserBot {
 
   async deleteAllObjects() {
     try {
-      let images = document.querySelectorAll("[media-image][networked]");
+      /*let images = document.querySelectorAll("[media-image][networked]");
       let models = document.querySelectorAll("[gltf-model-plus][networked]");
       let all = [];
       all.push.apply(all, images);
       all.push.apply(all, models);
+      console.log("images to delete:", images.length);
+      console.log("models to delete:", models.length);*/
+      let all = document.querySelectorAll("[media-loader]");
+      console.log("all:", all.length);
       for (item of all) {
+        console.log("deleting");
         let netEl = await NAF.utils.getNetworkedEntity(item);
         if (!NAF.utils.isMine(netEl)) await NAF.utils.takeOwnership(netEl)
-        netEl.setAttribute("pinnable", "pinned", false);
+        await netEl.setAttribute("pinnable", "pinned", false);
         await new Promise((r,e) => window.setTimeout(r, 1000))
         netEl.remove();
       }
