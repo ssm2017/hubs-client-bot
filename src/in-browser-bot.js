@@ -20,6 +20,31 @@ class InBrowserBot {
     document.querySelector('#avatar-rig').setAttribute(attr, val)
   }
 
+  async checkSanity() {
+    // Do a periodic sanity check of the state of the bot.
+    setInterval(async function() {
+      let avatarCounts;
+      try {
+        avatarCounts = {
+          connectionCount: Object.keys(NAF.connection.adapter.occupants).length,
+          avatarCount: document.querySelectorAll("[networked-avatar]").length - 1
+        };
+        console.log(JSON.stringify(avatarCounts));
+
+      } catch (e) {
+        // Ignore errors. This usually happens when the page is shutting down.
+      }
+      // Check for more than two connections to allow for a margin where we have a connection but the a-frame
+      // entity has not initialized yet.
+      if (avatarCounts && avatarCounts.connectionCount > 2 && avatarCounts.avatarCount === 0) {
+        // It seems the bots have dog-piled on to a restarting server, so we're going to shut things down and
+        // let the hubs-ops bash script restart us.
+        console.log("Detected avatar dog-pile. Restarting.");
+        process.exit(1);
+      }
+    }, 60 * 1000);
+  }
+
   /** Creates an interactive object, similar to the user's magic wand
       functionality.
       @param {Object} opts
@@ -181,7 +206,7 @@ class InBrowserBot {
       @param name Name that will be displayed in the room over the bot's head
   */
   async setName(name) {
-    window.APP.store.update({
+    await window.APP.store.update({
       activity: {
         hasChangedName: true,
         hasAcceptedProfile: true
@@ -190,6 +215,11 @@ class InBrowserBot {
         // Prepend (bot) to the name so other users know it's a bot
         displayName: "bot - " + name
     }})
+  }
+
+  async getName() {
+    let name = await window.APP.store.state.profile.displayName;
+    return name;
   }
 
   /** Posts a message to the chat */

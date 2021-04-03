@@ -122,7 +122,22 @@ class HubsBot {
   async enterRoom(roomUrl, {name, spawnPoint=null, audioVolume=null } = {}) {
     await this.browserLaunched
 
+    var params = {
+      bot: true,
+      allow_multi: true
+    };
+    if (audioVolume) {
+      params.audio_volume = audioVolume;
+    }
+ 
     let parsedUrl = new URL(roomUrl)
+		let url = `${roomUrl}?${querystring.stringify(params)}`;
+    if (spawnPoint) {
+      url += `#${spawnPoint}`;
+    }
+    console.log("Entering room:", url);
+
+    await this.page.goto(url, {waitUntil: 'domcontentloaded'})
 
     if (name)
     {
@@ -132,24 +147,14 @@ class HubsBot {
     {
       name = this.name
     }
+    await this.setName(name)
 
-    var params = {
-      bot: true,
-      allow_multi: true
-    };
-    if (audioVolume) {
-      params.audio_volume = audioVolume;
-    }
- 
-		let url = `${roomUrl}?${querystring.stringify(params)}`;
-    if (spawnPoint) {
-      url += `#${spawnPoint}`;
-    }
-    console.log(url);
+    this.checkSanity();
+  }
 
-    await this.page.goto(url, {waitUntil: 'domcontentloaded'})
-
-    this.setName(name)
+  async changeName(name) {
+    await this.setName(name);
+    this.name = await this.getName();
   }
 
   onMessage(callback) {
