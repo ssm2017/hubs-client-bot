@@ -206,6 +206,9 @@ class InBrowserBot {
       @param name Name that will be displayed in the room over the bot's head
   */
   async setName(name) {
+    if (name.indexOf('bot - ') === -1) {
+      name = 'bot - ' + name
+    }
     await window.APP.store.update({
       activity: {
         hasChangedName: true,
@@ -213,7 +216,7 @@ class InBrowserBot {
       },
       profile: {
         // Prepend (bot) to the name so other users know it's a bot
-        displayName: "bot - " + name
+        displayName: name
     }})
   }
 
