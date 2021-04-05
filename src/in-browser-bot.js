@@ -222,6 +222,21 @@ class InBrowserBot {
     return name;
   }
 
+  async getWaypoints() {
+    let wps = document.querySelectorAll('[waypoint]');
+    let result = [];
+    if (wps.length) {
+      for (var i=0; i < wps.length; i++) {
+        result.push({
+          name: wps[i].object3D.name,
+          position: wps[i].object3D.position,
+          data: wps[i].components.waypoint.data
+        });
+      }
+    }
+    return result;
+  }
+
   /** Posts a message to the chat */
   async say(message) {
     window.APP.hubChannel.sendMessage(message)
