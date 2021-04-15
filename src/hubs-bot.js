@@ -139,17 +139,15 @@ class HubsBot {
 
     await this.page.goto(url, {waitUntil: 'domcontentloaded'})
 
-    if (name)
-    {
+    this.checkSanity();
+
+    if (name) {
       this.name = name
-    }
-    else
-    {
+    } else {
       name = this.name
     }
     await this.setName(name)
 
-    this.checkSanity();
   }
 
   async changeName(name) {
