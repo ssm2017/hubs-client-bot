@@ -201,6 +201,10 @@ class InBrowserBot {
     document.querySelector('#avatar-rig').setAttribute('position', {x,y,z})
   }
 
+  async getPosition() {
+    let position = await document.querySelector('#avatar-rig').getAttribute('position');
+    return position;
+  }
   /** Sets the name of the bot. **NOTE** in order to help prevent abuse, the
       name will be previxed with "bot - "
       @param name Name that will be displayed in the room over the bot's head
@@ -223,6 +227,14 @@ class InBrowserBot {
   async getName() {
     let name = await window.APP.store.state.profile.displayName;
     return name;
+  }
+
+  async getAudioContext() {
+    const audioContext = {
+      "state": await THREE.AudioContext.getContext().state,
+      "audioname": await THREE.Audio.name
+    };
+    return audioContext;
   }
 
   async getWaypoints() {
