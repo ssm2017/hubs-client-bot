@@ -1,0 +1,5 @@
+#!/bin/bash
+if [ -d node_modules ]; then
+  rm -R node_modules
+fi
+npm ci && node examples/eggbot.js https://hubs.mozilla.com/jtbhYFh/adorable-cultured-venture
