@@ -129,7 +129,7 @@ class HubsBot {
     if (audioVolume) {
       params.audio_volume = audioVolume;
     }
- 
+
     let parsedUrl = new URL(roomUrl)
 		let url = `${roomUrl}?${querystring.stringify(params)}`;
     if (spawnPoint) {
@@ -147,7 +147,6 @@ class HubsBot {
       name = this.name
     }
     await this.setName(name)
-
   }
 
   async changeName(name) {

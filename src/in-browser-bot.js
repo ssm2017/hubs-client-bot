@@ -210,7 +210,12 @@ class InBrowserBot {
       @param name Name that will be displayed in the room over the bot's head
   */
   async setName(name) {
-    if (name.indexOf('bot - ') === -1) {
+    // check pattern
+    if (!name.match("^[A-Za-z0-9 -]{0,26}$")) {
+      throw("Name pattern not valid.");
+    }
+    // Prepend (bot) to the name so other users know it's a bot
+    if (!name.match("^bot - ")) {
       name = 'bot - ' + name
     }
     await window.APP.store.update({
@@ -219,7 +224,6 @@ class InBrowserBot {
         hasAcceptedProfile: true
       },
       profile: {
-        // Prepend (bot) to the name so other users know it's a bot
         displayName: name
     }})
   }
