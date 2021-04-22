@@ -322,6 +322,34 @@ class InBrowserBot {
     }
   }
 
+  async getAllObjects() {
+    try {
+      var myObjects = []
+      var medias = document.querySelectorAll("[media-loader][id^=naf]");
+      console.log("medias.count", medias.length);
+      // console.log("medias", JSON.stringify(medias));
+      if (medias.length) {
+        for (var media of medias){
+          let netEl = await NAF.utils.getNetworkedEntity(media);
+          if (!NAF.utils.isMine(netEl)) await NAF.utils.takeOwnership(netEl)
+          // if (media.components.pinnable && media.components.pinnable.attrValue.pinned)
+            myObjects.push({
+              id:       media.id,
+              src:      media.components['media-loader'].attrValue.src,
+              // type:     media.components['gltf-mode-plus'].attrValue.contentType,
+              position: media.getAttribute('position'),
+              rotation: media.getAttribute('rotation'),
+              scale:    media.getAttribute('scale'),
+              // pinned:   media.components.pinnable.attrValue.pinned
+            })
+        }
+      }
+      return myObjects
+    } catch (e) {
+      console.error("Error getting objects : ", e.message);
+    }
+  }
+
   async deleteAllObjects() {
     try {
       /*let images = document.querySelectorAll("[media-image][networked]");
