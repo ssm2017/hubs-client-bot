@@ -373,6 +373,15 @@ class InBrowserBot {
       console.error("Error deleting object : ", e);
     }
   }
+
+  async getAvatarId() {
+    let avatarId = await window.APP.store.state.profile.avatarId;
+    return avatarId;
+  }
+
+  async changeAvatarByAvatarId(avatarId){
+    window.APP.store.update({ profile: { ...(window.APP.store.state.profile), avatarId } });
+  }
 }
 
 module.exports = {InBrowserBot}
