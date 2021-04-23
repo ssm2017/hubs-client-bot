@@ -141,12 +141,12 @@ class HubsBot {
 
     this.checkSanity();
 
-    if (name) {
-      this.name = name
-    } else {
-      name = this.name
-    }
-    await this.setName(name)
+    // if (name) {
+    //   this.name = name
+    // } else {
+    //   name = this.name
+    // }
+    // await this.setName(name)
   }
 
   async changeName(name) {
