@@ -96,9 +96,7 @@ class InBrowserBot {
       dynamic = false;
       billboard = false;
     }
-    if (billboard) {
-      el.setAttribute('billboard', 'billboard', true);
-    }
+
     document.querySelector('a-scene').append(el)
 
     await loaded
@@ -163,6 +161,10 @@ class InBrowserBot {
           lastPosition.copy(el.object3D.position)
         }, 100)
       }
+    }
+
+    if (billboard) {
+      netEl.setAttribute('billboard', 'billboard', true);
     }
 
     if (pinned) {
