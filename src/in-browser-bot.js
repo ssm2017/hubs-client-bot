@@ -164,6 +164,7 @@ class InBrowserBot {
     }
 
     if (billboard) {
+      await new Promise((r,e) => window.setTimeout(r, 2000))
       netEl.setAttribute('billboard', 'billboard', true);
     }
 
