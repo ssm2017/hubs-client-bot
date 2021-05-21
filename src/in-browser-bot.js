@@ -79,7 +79,8 @@ class InBrowserBot {
       autoDropTimeout,
       fitToBox = true,
       pinned = false,
-      projection = null
+      projection = null,
+      billboard = false
     } = opts
     let el = document.createElement("a-entity")
 
@@ -93,6 +94,10 @@ class InBrowserBot {
     if (projection) {
       el.setAttribute('media-loader', {mediaOptions: {projection: projection}});
       dynamic = false;
+      billboard = false;
+    }
+    if (billboard) {
+      el.setAttribute('billboard', 'billboard', true);
     }
     document.querySelector('a-scene').append(el)
 
